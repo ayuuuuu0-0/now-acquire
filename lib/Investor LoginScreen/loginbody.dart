@@ -1,9 +1,13 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:now_acquire_app/Investor LoginScreen/rectangular_password_field.dart';
 import 'package:now_acquire_app/Investor SignUpScreen/signin_page.dart';
 import 'package:now_acquire_app/Widgets/Already_Registered.dart';
 import 'package:now_acquire_app/Widgets/rectangular_button.dart';
 import 'package:now_acquire_app/Widgets/rectangular_input_field.dart';
+import 'loginapi.dart';
+import 'package:now_acquire_app/Investor HomeScreen/invhomescreen.dart';
 
 class LoginBody extends StatefulWidget {
   const LoginBody({Key? key}) : super(key: key);
@@ -14,42 +18,44 @@ class LoginBody extends StatefulWidget {
 
 class _LoginBodyState extends State<LoginBody> {
 
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _userNameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isNotValidate = false;
 
-  // final FirebaseAuth _auth = FirebaseAuth.instance;
+  Future<void> loginUser() async {
+    if(_userNameController.text.isNotEmpty
+        && _passwordController.text.isNotEmpty){
+      var reqBody = {
+        "userName": _userNameController.text,
+        "password": _passwordController.text,
+      };
 
-  // void _login() async {
-  //   showDialog(
-  //       context: context,
-  //       builder: (_) {
-  //         return LoadingAlertDialog(message: 'Please wait',);
-  //       }
-  //   );
+      var response = await http.post(Uri.parse(login),
+        headers: {"Content-Type":"application/json"},
+        body: jsonEncode(reqBody),
 
-    //   User? currentUser;
-    //   await _auth.signInWithEmailAndPassword(
-    //     email: _emailController.text.trim(),
-    //     password: _passwordController.text.trim(),
-    //   ).then((auth) {
-    //     currentUser = auth.user;
-    //   }).catchError((error) {
-    //     Navigator.pop(context);
-    //     showDialog(context: context, builder: (context) {
-    //       return ErrorAlertDialog(Message: error.message.toString());
-    //     });
-    //   });
-    //   if(currentUser != null){
-    //     //ignore: use_build_context_synchronously
-    //     Navigator.pop(context);
-    //     //ignore: use_build_Context_synchronously
-    //     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
-    //   }
-    //   else {
-    //     print('error');
-    //   }
-    // }
+      );
+      print(response);
+
+      var jsonResponse = json.decode(response.body);
+      print(jsonResponse);
+
+      if(response.statusCode == 200){
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => HomeScreen()));
+      }
+      else {
+        final snackBar = SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('$jsonResponse'));
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
+    }else{
+      setState(() {
+        _isNotValidate = true;
+      });
+    }
+  }
 
 
     @override
@@ -78,7 +84,7 @@ class _LoginBodyState extends State<LoginBody> {
               RectangularInputField(
                 labelText: ' Username *',
                 onChanged: (value) {
-                  _emailController.text = value;
+                  _userNameController.text = value;
                 },
                 errorText: _isNotValidate ? "Enter proper info" : null,
               ),
@@ -107,7 +113,9 @@ class _LoginBodyState extends State<LoginBody> {
               // ),
               RectangularButton(
                 text: 'LOG-IN',
-                press: () {},),
+                press: () {
+                  loginUser();
+                },),
 
               SizedBox(height: size.height * 0.03,),
               AlreadyHaveAnAccount(
