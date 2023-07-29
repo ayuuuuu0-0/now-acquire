@@ -4,9 +4,12 @@ import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 import 'package:now_acquire_app/Startup%20Register/small_Rectangular_input.dart';
 import 'package:now_acquire_app/Startup%20Register/startup_register_url.dart';
+import 'package:now_acquire_app/Startup_Login/startupapi.dart';
 import '../Investor LoginScreen/Login_Screen.dart';
 import '../Investor SignUpScreen/TermsandConditions.dart';
+import '../Startup_Login/startuplogin_page.dart';
 import '../Startup_Login/startuploginbody.dart';
+import '../WelcomeScreen/welcome_screen.dart';
 import '../Widgets/Already_Registered.dart';
 import '../Widgets/rectangular_button.dart';
 import 'longrectangularinput.dart';
@@ -46,6 +49,7 @@ class _StartupSignInState extends State<StartupSignIn> {
   ];
   String? _selectedVal = '';
   bool _isNotValidate = false;
+  bool? value = false;
   TextEditingController dateController = TextEditingController();
   DateTime selectedDate = DateTime.now();
 
@@ -71,7 +75,7 @@ class _StartupSignInState extends State<StartupSignIn> {
   }
 
 
-  void startupRegisterUser() async {
+  Future <void> startupRegisterUser(BuildContext context) async {
     if (_companynameController.text.isNotEmpty
         && _contactNumberController.text.isNotEmpty
         && _usernameController.text.isNotEmpty
@@ -109,9 +113,44 @@ class _StartupSignInState extends State<StartupSignIn> {
       );
       var jsonResponse = json.decode(response.body);
       print(jsonResponse);
-      // if(jsonResponse != null){
-      //   Navigator.push(context, MaterialPageRoute(builder: (context) => StartupLogin()));
-      // }
+
+      void showConfirmationDialog(BuildContext context) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Registration Successful'),
+              content: Text('Thank you for signing up!'),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => WelcomeScreen()));
+                  },
+                  child: Text('Welcome Screen'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => StartupLoginScreen()));
+                  },
+                  child: Text('Login Screen'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+
+      if(response.statusCode == 200){
+        showConfirmationDialog(context);
+      }
+      else {
+        final snackBar = SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('$jsonResponse'));
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
     }
   }
 
@@ -390,8 +429,12 @@ class _StartupSignInState extends State<StartupSignIn> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Checkbox(
-                  value: false,
-                  onChanged: (bool? value) {},
+                  value: this.value,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      this.value = value;
+                    });
+                  },
                 ),
                 const Text('I Agree to the '),
                 InkWell(
@@ -409,7 +452,7 @@ class _StartupSignInState extends State<StartupSignIn> {
             RectangularButton(
               text: 'SIGN UP',
               press: () {
-                startupRegisterUser();
+                startupRegisterUser(context);
               },
             ),
             SizedBox(height: screenHeight * 0.03,),

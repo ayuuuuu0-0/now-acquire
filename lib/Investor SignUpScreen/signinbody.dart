@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:now_acquire_app/Investor LoginScreen/Login_Screen.dart';
@@ -7,8 +6,8 @@ import 'package:now_acquire_app/Investor SignUpScreen/TermsandConditions.dart';
 import 'package:now_acquire_app/Widgets/Already_Registered.dart';
 import 'package:now_acquire_app/Widgets/rectangular_button.dart';
 import 'package:now_acquire_app/Widgets/rectangular_input_field.dart';
-import '../HomeScreen/HomeScreen.dart';
 import '../Investor LoginScreen/rectangular_password_field.dart';
+import '../WelcomeScreen/welcome_screen.dart';
 import 'user_model.dart';
 
 class SignUpBody extends StatefulWidget {
@@ -31,9 +30,10 @@ class _SignUpBodyState extends State<SignUpBody> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _userNameController = TextEditingController();
   bool _isNotValidate = false;
+  bool? value = false;
 
 
-  void registerUser() async {
+  Future<void> registerUser(BuildContext context) async {
     if(_firstnameController.text.isNotEmpty
         && _lastnameController.text.isNotEmpty
         && _emailController.text.isNotEmpty
@@ -52,12 +52,50 @@ class _SignUpBodyState extends State<SignUpBody> {
       var response = await http.post(Uri.parse(registration),
         headers: {"Content-Type":"application/json"},
         body: jsonEncode(regBody),
+
       );
       print(response);
 
       var jsonResponse = json.decode(response.body);
       print(jsonResponse);
 
+      void showConfirmationDialog(BuildContext context) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Registration Successful'),
+              content: Text('Thank you for signing up!'),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => WelcomeScreen()));
+                  },
+                  child: Text('Welcome Screen'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => LoginScreen()));
+                  },
+                  child: Text('Login Screen'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+
+      if(response.statusCode == 200){
+        showConfirmationDialog(context);
+      }
+      else {
+        final snackBar = SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('$jsonResponse'));
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
     }else{
       setState(() {
         _isNotValidate = true;
@@ -179,8 +217,12 @@ class _SignUpBodyState extends State<SignUpBody> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                  Checkbox(
-                  value: false,
-                  onChanged: (bool? value){},
+                  value: this.value,
+                  onChanged: (bool? value){
+                    setState(() {
+                      this.value = value;
+                    });
+                  },
                 ),
                 const Text('I Agree to the '),
                 InkWell(
@@ -193,20 +235,10 @@ class _SignUpBodyState extends State<SignUpBody> {
                 ),
               ],
             ),
-            // _isLoading
-            //     ?
-            // Center(
-            //   child: Container(
-            //     width: 70,
-            //     height: 70,
-            //     child: const CircularProgressIndicator(),
-            //   ),
-            // )
-            //     :
             RectangularButton(
               text: 'SIGN UP',
               press: () {
-                registerUser();
+                registerUser(context);
               },
             ),
             //SizedBox(height: screenHeight * 0.03,),
