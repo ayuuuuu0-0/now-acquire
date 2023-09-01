@@ -11,7 +11,7 @@ import '../Widgets/rectangular_input_field.dart';
 import 'package:http/http.dart' as http;
 
 class StartupLogin extends StatefulWidget {
-  const StartupLogin({super.key});
+  StartupLogin({ super.key});
 
   @override
   State<StartupLogin> createState() => _StartupLoginState();
@@ -59,6 +59,7 @@ class _StartupLoginState extends State<StartupLogin> {
 
   @override
   Widget build(BuildContext context) {
+    //late var InvDetails = widget.investor;
     Size size = MediaQuery
         .of(context)
         .size;
@@ -106,7 +107,7 @@ class _StartupLoginState extends State<StartupLogin> {
               login: true,
               press: () {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => SignUpScreen()));
+                    MaterialPageRoute(builder: (context) => SignUpScreen(/*investor: InvDetails,*/)));
               },
             ),
           ],

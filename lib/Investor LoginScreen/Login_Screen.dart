@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
 import 'loginbody.dart';
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+class LoginScreen extends StatefulWidget {
+  //late var investor;
+  LoginScreen({/*required this.investor,*/ super.key});
 
   @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-    body: LoginBody(),
+    //late var InvDetails = widget.investor;
+    return Scaffold(
+      body: LoginBody(),
     );
   }
 }
+

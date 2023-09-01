@@ -16,7 +16,8 @@ import 'longrectangularinput.dart';
 import 'package:http/http.dart' as http;
 
 class StartupSignIn extends StatefulWidget {
-  const StartupSignIn({super.key});
+   //late var investor;
+   StartupSignIn({/*required this.investor,*/ super.key});
 
   @override
   State<StartupSignIn> createState() => _StartupSignInState();
@@ -24,6 +25,7 @@ class StartupSignIn extends StatefulWidget {
 
 class _StartupSignInState extends State<StartupSignIn> {
 
+  //late var InvDetails = widget.investor;
   _StartupSignInState() {
     _selectedVal = _productSizesList[0];
   }
@@ -52,6 +54,8 @@ class _StartupSignInState extends State<StartupSignIn> {
   bool? value = false;
   TextEditingController dateController = TextEditingController();
   DateTime selectedDate = DateTime.now();
+  String? _emailErrorText;
+  String? _userNameErrorText;
 
   selectDate(BuildContext context) async {
     double screenWidth = MediaQuery
@@ -108,31 +112,35 @@ class _StartupSignInState extends State<StartupSignIn> {
       //print(registrationBody);
 
       var response = await http.post(Uri.parse(startupRegister),
-        headers: {"Content-Type":"application/json"},
+        headers: {"Content-Type": "application/json"},
         body: jsonEncode(registrationBody),
       );
       var jsonResponse = json.decode(response.body);
       print(jsonResponse);
 
-      void showConfirmationDialog(BuildContext context) {
+      void showConfirmationDialog(BuildContext context, String username) {
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text('Registration Successful'),
-              content: Text('Thank you for signing up!'),
+              title: Text('Thank you for signing up!\n Your Username is $username'),
+              content: Text('Welcome to nowAcquire'),
               actions: [
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF441256)),
                   onPressed: () {
                     Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => WelcomeScreen()));
+                        MaterialPageRoute(
+                            builder: (context) => WelcomeScreen(/*investor: InvDetails,*/)));
                   },
                   child: Text('Welcome Screen'),
                 ),
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF441256)),
                   onPressed: () {
                     Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => StartupLoginScreen()));
+                        MaterialPageRoute(
+                            builder: (context) => StartupLoginScreen(/*investor: InvDetails,*/)));
                   },
                   child: Text('Login Screen'),
                 ),
@@ -142,14 +150,26 @@ class _StartupSignInState extends State<StartupSignIn> {
         );
       }
 
-      if(response.statusCode == 200){
-        showConfirmationDialog(context);
+      if (response.statusCode == 200) {
+        showConfirmationDialog(context, _usernameController.text);
       }
       else {
-        final snackBar = SnackBar(
+        if (response.statusCode == 500) {
+          setState(() {
+            _emailErrorText = 'Enter Proper Email';
+          });
+        } else {
+          if(response.statusCode == 400){
+            setState(() {
+              _userNameErrorText = 'UserName already in use';
+            });
+          }
+          final snackBar = SnackBar(
             backgroundColor: Colors.red,
-            content: Text('$jsonResponse'));
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+            content: Text('$jsonResponse'),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        }
       }
     }
   }
@@ -211,7 +231,7 @@ class _StartupSignInState extends State<StartupSignIn> {
                     labelText: 'Email Address *',
                     onChanged: (value) {
                       _emailController.text = value;
-                    }, errorText: _isNotValidate ? "Enter proper info" : null,
+                    }, errorText: _isNotValidate ? "Enter proper info" : _emailErrorText,
                   ),
                 ),
                 SizedBox(width: 12.0,),

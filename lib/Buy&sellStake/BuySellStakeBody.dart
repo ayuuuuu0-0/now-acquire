@@ -1,0 +1,382 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
+import 'package:now_acquire_app/AllStartups/allstartupsAPI.dart';
+import 'package:provider/provider.dart';
+import 'package:now_acquire_app/startup_provider.dart';
+
+class BuySellStakeBody extends StatefulWidget {
+  final Map<String, dynamic> companyData;
+  final Map<String, dynamic> investor;
+
+  BuySellStakeBody({required this.companyData, required this.investor});
+
+  @override
+  State<BuySellStakeBody> createState() => _BuySellStakeBodyState();
+}
+
+class _BuySellStakeBodyState extends State<BuySellStakeBody> {
+  TextEditingController _stakeController = TextEditingController();
+  double stakePercentage = 0.0; // Add this line
+  double rupees = 0.0;
+  late var InvDetails;
+  Map<String, dynamic> financials = {};
+  late Future<List<Map<String, dynamic>>> startupData;
+  //bool _isMounted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // _isMounted = true;
+    financials = widget.companyData['financials'] ?? {};
+    InvDetails = widget.investor;
+    //startupData = fetchData();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final company = widget.companyData;
+    final provider = Provider.of<StartupProvider>(context, listen: false);
+
+    String companyName = company['name'];
+    String industry = company['industry'];
+
+    String companyValuation = financials.containsKey('companyValuation')
+        ? '₹' + financials['companyValuation'].toString()
+        : 'Company Financials not yet updated';
+    String stakeHeldByPromoters = financials.containsKey('promoterStake')
+        ? financials['promoterStake'].toString() + '%'
+        : 'N/A';
+    String stakeHeldByAngelInvestors = financials.containsKey('angelStake')
+        ? financials['angelStake'].toString() + '%'
+        : 'N/A';
+    String stakeHeldByInstitutionalInvestors =
+    financials.containsKey('institutionalStake')
+        ? financials['institutionalStake'].toString() + '%'
+        : 'N/A';
+    String totalStakeDiversified = financials.containsKey('equityOnNA')
+        ? financials['equityOnNA'].toString() + '%'
+        : 'N/A';
+    String stakeAlreadySold = financials.containsKey('equitySoldOnNA')
+        ? financials['equitySoldOnNA'].toString() + '%'
+        : 'N/A';
+    String stakeAvailable = financials.containsKey('equityAvailableOnNA')
+        ? financials['equityAvailableOnNA'].toString() + '%'
+        : 'N/A';
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(0xFFF7F5FF),
+        title: Image.asset('assets/images/namenlogo.png', width: 200),
+        titleSpacing: 5,
+        automaticallyImplyLeading: false,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Company Name: $companyName',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8),
+              Text('Industry: $industry', style: TextStyle(fontSize: 16)),
+              SizedBox(height: 12),
+              CardItem(
+                label: 'Current Company Valuation:',
+                value: companyValuation,
+                provider: provider,
+              ),
+              CardItem(
+                label: 'Stake Held by Promoters:',
+                value: stakeHeldByPromoters,
+                provider: provider,
+              ),
+              CardItem(
+                label: 'Stake Held by Angel Investors:',
+                value: stakeHeldByAngelInvestors,
+                provider: provider,
+              ),
+              CardItem(
+                label: 'Stake Held by \nInstitutional Investors:',
+                value: stakeHeldByInstitutionalInvestors,
+                provider: provider,
+              ),
+              CardItem(
+                label: 'Total Stake Diversified\n on NowAcquire:',
+                value: totalStakeDiversified,
+                provider: provider,
+              ),
+              CardItem(
+                label: 'Stake Already Sold\n on NowAcquire:',
+                value: stakeAlreadySold,
+                provider: provider,
+              ),
+              CardItem(
+                label: 'Stake Available \non NowAcquire:',
+                value: stakeAvailable,
+                provider: provider,
+              ),
+              SizedBox(height: 16),
+              Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      _showStakeDialog('Buy', provider, companyName);
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green),
+                    child: Text('Buy Stake'),
+                  ),
+                  SizedBox(width: 5),
+                  ElevatedButton(
+                    onPressed: () {
+                      _showStakeDialog('Sell', provider, companyName);
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red),
+                    child: Text('Sell Stake'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showStakeDialog(
+      String transactionType,
+      StartupProvider provider,
+      String CompanyName
+      ) async {
+    final company = widget.companyData;
+    String companyName = company['name'];
+    double newStakeAvailable = 0.0; // Initialize with a default value
+    double newStakeSold = 0.0; // Initialize with a default value
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('$transactionType Stake'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: _stakeController,
+                    keyboardType: TextInputType.number,
+                    onChanged: (value) {
+                      setState(() {
+                        if (value.isNotEmpty) {
+                          stakePercentage = double.tryParse(value) ?? 0.0;
+
+                          if (stakePercentage > 100) {
+                            // Display an error message
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(
+                                  "You can't buy more than 100% equity")),
+                            );
+                          } else {
+                            // Calculate rupees based on stake percentage and company valuation
+                            double companyValuation = financials.containsKey(
+                                'companyValuation')
+                                ? (financials['companyValuation'] as num)
+                                .toDouble()
+                                : 0.0;
+                            rupees = (companyValuation * stakePercentage) / 100;
+                          }
+                        }
+                      });
+                    },
+                    decoration: InputDecoration(
+                        labelText: 'Stake Percentage (%)'),
+                  ),
+                  SizedBox(height: 10),
+                  Text('Rupees: ₹$rupees'), // Display calculated rupees here
+                ],
+              ),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    if (_stakeController.text.isNotEmpty) {
+                      stakePercentage = double.tryParse(_stakeController.text) ?? 0.0;
+
+                      if (stakePercentage > 100) {
+                        // Display an error message
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("You can't buy more than 100% equity")),
+                        );
+                      } else {
+                        // Calculate rupees based on stake percentage and company valuation
+                        double companyValuation = financials.containsKey('companyValuation')
+                            ? (financials['companyValuation'] as num).toDouble()
+                            : 0.0;
+                        rupees = (companyValuation * stakePercentage) / 100;
+                        String formattedPercentage = stakePercentage.toStringAsFixed(2);
+
+                        if (transactionType == 'Buy') {
+                          // Multiply the stakePercentage by 100 when formatting
+                          //(stakePercentage * 100).toStringAsFixed(2);
+
+                          buyStake(stakePercentage, rupees, formattedPercentage, provider, companyName, newStakeAvailable, newStakeSold);
+                          //provider.updateStakeAvailableAndSold(companyName, newStakeAvailable, newStakeSold);
+                        } else {
+                          // Multiply the stakePercentage by 100 when formatting
+                          String formattedPercentage =
+                          (stakePercentage * 100).toStringAsFixed(2);
+
+                          sellStake(stakePercentage, rupees, formattedPercentage, provider);
+                          //provider.updateStakeAvailableAndSold(companyName, newStakeAvailable, newStakeSold);
+                        }
+
+                        Navigator.of(context).pop();
+
+                      }
+                    }
+                  },
+                  child: Text('Submit'),
+                ),
+
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+
+  Future<void> buyStake(
+      double percentage,
+      double rupees,
+      String formattedPercentage,
+      StartupProvider provider,
+      String companyName,
+      double newStakeAvailable,
+      double newStakeSold
+      ) async {
+    String userName = widget.investor['userName'] ?? ""; // Replace with the actual user name
+    String transactionType = "BUY";
+    double amount = rupees;
+    String formattedPercentage = (percentage / 100).toStringAsFixed(2);
+    String company = widget.companyData['userName'] ??
+        ""; // Replace with the actual company name
+
+    Map<String, dynamic> payload = {
+      "userName": userName,
+      "transactionType": transactionType,
+      "amount": amount,
+      "percentage": formattedPercentage,
+      "company": company,
+    };
+
+
+      final response = await http.post(
+        Uri.parse(
+            'https://now-acquire-backend.vercel.app/investor/transaction'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(payload),
+      );
+
+
+        print(response.body);
+        print(payload);
+
+        if (response.statusCode == 200) {
+          print('Successfully bought stake. ${response.body}');
+          // Call the fetchData function to update the data
+          //refreshData();
+
+          // Update stake available in the provider
+          double existingStakeAvailable = financials['equityAvailableOnNA'];
+          double newStakeAvailable = existingStakeAvailable - percentage;
+
+          double existingStakeSold = financials['equitySoldOnNA'];
+          double newStakeSold = existingStakeSold + percentage;
+          provider.updateStakeAvailableAndSold(companyName, newStakeAvailable, newStakeSold);
+
+          // Refresh the data in the provider
+          await provider.fetchStartups();
+
+          // Navigate to the page with updated data
+          Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (BuildContext context) =>
+                  BuySellStakeBody(companyData: widget.companyData, investor: InvDetails)));
+
+        } else {
+          print('Failed to buy stake. Status code: ${response.statusCode}');
+        }
+      }
+
+
+
+  Future<void> sellStake(double percentage, double rupees, String formattedPercentage, StartupProvider provider) async {
+    String userName = widget.investor['userName'] ?? "";
+    String transactionType = "SELL";
+    double amount = rupees;
+    String formattedPercentage = (percentage / 100).toStringAsFixed(2);
+    String company = widget.companyData['company'] ?? "";
+
+    Map<String, dynamic> payload = {
+      "userName": userName,
+      "transactionType": transactionType,
+      "amount": amount,
+      "percentage": formattedPercentage,
+      "company": company,
+    };
+
+
+      final response = await http.post(
+        Uri.parse(
+            'https://now-acquire-backend.vercel.app/investor/transaction'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(payload),
+      );
+
+
+        print(response.body);
+
+        if (response.statusCode == 200) {
+          print('Successfully sold stake. ${response.body}');
+
+        } else {
+          print('Failed to sell stake. Status code: ${response.statusCode}');
+        }
+      }
+}
+
+
+class CardItem extends StatelessWidget {
+  final String label;
+  final String value;
+  final StartupProvider provider;
+
+  CardItem({required this.label, required this.value, required this.provider});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(label, style: TextStyle(fontSize: 16)),
+            Text(value, style: TextStyle(fontSize: 16)),
+          ],
+        ),
+      ),
+    );
+  }
+}

@@ -11,7 +11,8 @@ import '../WelcomeScreen/welcome_screen.dart';
 import 'user_model.dart';
 
 class SignUpBody extends StatefulWidget {
-  const SignUpBody({Key? key}) : super(key: key);
+
+  SignUpBody({super.key});
 
   @override
   State<SignUpBody> createState() => _SignUpBodyState();
@@ -70,14 +71,14 @@ class _SignUpBodyState extends State<SignUpBody> {
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => WelcomeScreen()));
+                        MaterialPageRoute(builder: (context) => WelcomeScreen(/*investor: InvDetails,*/)));
                   },
                   child: Text('Welcome Screen'),
                 ),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => LoginScreen()));
+                        MaterialPageRoute(builder: (context) => LoginScreen(/*investor: InvDetails,*/)));
                   },
                   child: Text('Login Screen'),
                 ),
@@ -246,7 +247,7 @@ class _SignUpBodyState extends State<SignUpBody> {
                 login: false,
                 press: () {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => LoginScreen()));
+                      MaterialPageRoute(builder: (context) => LoginScreen(/*investor: InvDetails,*/)));
                 },
             ),
           ],

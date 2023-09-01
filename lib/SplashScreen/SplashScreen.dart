@@ -4,18 +4,20 @@ import 'package:now_acquire_app/SplashScreen/rotateimage.dart';
 import '../WelcomeScreen/welcome_screen.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  //late var investor;
+  SplashScreen({/*required this.investor,*/ super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  //late var InvDetails = widget.investor;
 
   startTimer() {
     Timer(const Duration(seconds: 4), () async {
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => WelcomeScreen()));
+            context, MaterialPageRoute(builder: (context) => WelcomeScreen(/*investor: InvDetails,*/)));
       }
     );
   }
