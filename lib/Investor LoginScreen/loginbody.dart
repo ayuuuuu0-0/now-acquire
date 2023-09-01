@@ -8,15 +8,17 @@ import 'package:now_acquire_app/Widgets/rectangular_button.dart';
 import 'package:now_acquire_app/Widgets/rectangular_input_field.dart';
 import 'loginapi.dart';
 import 'package:now_acquire_app/Investor HomeScreen/invhomescreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginBody extends StatefulWidget {
-  const LoginBody({Key? key}) : super(key: key);
+  LoginBody({ super.key});
 
   @override
   State<LoginBody> createState() => _LoginBodyState();
 }
 
 class _LoginBodyState extends State<LoginBody> {
+
 
   final TextEditingController _userNameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -33,16 +35,21 @@ class _LoginBodyState extends State<LoginBody> {
       var response = await http.post(Uri.parse(login),
         headers: {"Content-Type":"application/json"},
         body: jsonEncode(reqBody),
-
       );
       print(response);
 
       var jsonResponse = json.decode(response.body);
-      print(jsonResponse);
+      print(jsonResponse['user1']['_doc']);
 
       if(response.statusCode == 200){
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => HomeScreen()));
+        // SharedPreferences prefs = await SharedPreferences.getInstance();
+        // prefs.setString('userName', _userNameController.text);
+        // prefs.setString('firstName', jsonResponse['user1']['firstName']);
+        // prefs.setString('lastName', jsonResponse['user1']['lastName']);
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => InvhomeScreen(
+              investor : jsonResponse['user1']['_doc'],
+            )));
       }
       else {
         final snackBar = SnackBar(
@@ -95,22 +102,6 @@ class _LoginBodyState extends State<LoginBody> {
                 }, errorText: _isNotValidate ? "Enter proper info" : null,
               ),
               const SizedBox(height: 4),
-              // Align(
-              //   alignment: Alignment.centerRight,
-              //   child: TextButton(
-              //     onPressed: () {
-              //       Navigator.push(context, MaterialPageRoute(
-              //           builder: (context) => ForgotPassword()));
-              //     },
-              //     child: const Text('Forgot Password?',
-              //       style: TextStyle(
-              //         color: Colors.black,
-              //         fontSize: 19,
-              //         fontStyle: FontStyle.italic,
-              //       ),
-              //     ),
-              //   ),
-              // ),
               RectangularButton(
                 text: 'LOG-IN',
                 press: () {
