@@ -54,9 +54,18 @@ class _BuySellStakeBodyState extends State<BuySellStakeBody> {
         final data = json.decode(response.body);
 
         setState(() {
-          financials = data['financials'] ?? {};
-          equityAvailableOnNowAcquire = financials['equityAvailableOnNA'] ?? 0.0;
-          equitySoldOnNowAcquire = financials['equitySoldOnNA'] ?? 0.0;
+          final financialsData = data['financials'] ?? {};
+          final equityAvailable = financialsData['equityAvailableOnNA'];
+
+          if (equityAvailable is int) {
+            equityAvailableOnNowAcquire = equityAvailable.toDouble();
+          } else if (equityAvailable is double) {
+            equityAvailableOnNowAcquire = equityAvailable;
+          } else if (equityAvailable is String) {
+            equityAvailableOnNowAcquire = double.tryParse(equityAvailable) ?? 0.0;
+          } else {
+            equityAvailableOnNowAcquire = 0.0; // Default value if it's not numeric or a string that can't be parsed
+          }
         });
       } else {
         print('Failed to fetch data from the API. Status code: ${response.statusCode}');
@@ -69,13 +78,13 @@ class _BuySellStakeBodyState extends State<BuySellStakeBody> {
   @override
   Widget build(BuildContext context) {
     final company = widget.companyData;
-
+    print(InvDetails);
     String companyName = company['name'];
     String industry = company['industry'];
 
     String companyValuation = financials.containsKey('companyValuation')
         ? '₹' + financials['companyValuation'].toString()
-        : 'Company Financials not yet updated';
+        : 'Company Financials \nnot yet updated';
     String stakeHeldByPromoters = financials.containsKey('promoterStake')
         ? financials['promoterStake'].toString() + '%'
         : 'N/A';
@@ -116,8 +125,10 @@ class _BuySellStakeBodyState extends State<BuySellStakeBody> {
               SizedBox(height: 8),
               Text('Industry: $industry', style: TextStyle(fontSize: 16)),
               SizedBox(height: 12),
+              // CardItem(label: 'Description',
+              //     value: ' Boat is a consumer electronics \n startup that brings \nmillennials affordable durable, and\n fashionable audio products\n and accessories. The boAt\n story began when co-founders\n Aman Gupta and Sameer Mehta,\n the owner of \nRedwood Interactive, saw an\n opportunity in the Indian \nmarket for affordable,\n good-quality audio products. '),
               CardItem(
-                label: 'Current Company Valuation:',
+                label: 'Current Company \nValuation:',
                 value: companyValuation,
               ),
               CardItem(
@@ -298,8 +309,6 @@ class _BuySellStakeBodyState extends State<BuySellStakeBody> {
                             );
                           }
                         }
-
-
                         Navigator.of(context).pop();
                       }
                     }
@@ -346,7 +355,9 @@ class _BuySellStakeBodyState extends State<BuySellStakeBody> {
     print(payload);
 
     if (response.statusCode == 200) {
-      print('Successfully bought stake. ${response.body}');
+      print('Successfully bought stake. ${response.body}'
+
+      );
     } else {
       print('Failed to buy stake. Status code: ${response.statusCode}');
     }

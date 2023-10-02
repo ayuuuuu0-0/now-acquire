@@ -45,45 +45,47 @@ class _WelcomeBodyState extends State<WelcomeBody> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 RectangularButton(
-                    text: 'INVESTOR \n   LOGIN',
+                    text: 'INVESTOR LOGIN',
                     press: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder:
                               (context) => LoginScreen(/*investor: InvDetails,*/)));
                     }
                 ),
-                RectangularButton(
-                  text: 'STARTUP \n  LOGIN',
-                  press: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder:
-                            (context) => StartupLoginScreen(/*investor: InvDetails,*/)));
-                  },
-                ),
+                // RectangularButton(
+                //   text: '  INVESTOR REGISTER',
+                //   press: () {
+                //     Navigator.push(context,
+                //         MaterialPageRoute(builder:
+                //             (context) => SignUpScreen(/*investor: InvDetails,*/)));
+                //   },
+                 //),
               ],
             ),
-            SizedBox(height: size.height * 0.03,),
+
+            SizedBox(height: size.height * 0.02,),
+            Text('New to nowAcquire?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, fontStyle: FontStyle.italic),),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 RectangularButton(
-                    text: 'INVESTOR \n REGISTER',
+                    text: 'INVESTOR REGISTER',
                     press: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder:
                               (context) => SignUpScreen(/*investor: InvDetails,*/)));
                     }
                 ),
-                RectangularButton(
-                  text: 'STARTUP \nREGISTER',
-                  press: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder:
-                            (context) => StartupRegisterScreen(/*investor: InvDetails,*/)));
-                  },
-                ),
-              ],
-            ),
+            //     RectangularButton(
+            //       text: 'STARTUP \nREGISTER',
+            //       press: () {
+            //         Navigator.push(context,
+            //             MaterialPageRoute(builder:
+            //                 (context) => StartupRegisterScreen(/*investor: InvDetails,*/)));
+            //       },
+            //     ),
+               ],
+             ),
           ],
         ),
       ),
