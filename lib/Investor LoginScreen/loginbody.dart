@@ -42,10 +42,6 @@ class _LoginBodyState extends State<LoginBody> {
       print(jsonResponse['user1']['_doc']);
 
       if(response.statusCode == 200){
-        // SharedPreferences prefs = await SharedPreferences.getInstance();
-        // prefs.setString('userName', _userNameController.text);
-        // prefs.setString('firstName', jsonResponse['user1']['firstName']);
-        // prefs.setString('lastName', jsonResponse['user1']['lastName']);
         Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context) => InvhomeScreen(
               investor : jsonResponse['user1']['_doc'],

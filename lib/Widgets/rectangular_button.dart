@@ -18,7 +18,7 @@ class RectangularButton extends StatelessWidget {
         .size;
     return Container(
       margin: const EdgeInsets.symmetric(vertical:10,horizontal: 10),
-      width: size.width * 0.40,
+      width: size.width * 0.80,
       child: ClipRRect(
           borderRadius: BorderRadius.circular(10),
           child: ElevatedButton(
