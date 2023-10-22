@@ -8,7 +8,7 @@ import 'package:now_acquire_app/Investor SignUpScreen/signin_page.dart';
 
 class WelcomeBody extends StatefulWidget {
   //late var investor;
-   WelcomeBody({/*required this.investor,*/ super.key});
+  WelcomeBody({/*required this.investor,*/ super.key});
 
   @override
   State<WelcomeBody> createState() => _WelcomeBodyState();
@@ -18,20 +18,24 @@ class _WelcomeBodyState extends State<WelcomeBody> {
   @override
   Widget build(BuildContext context) {
     //late var InvDetails = widget.investor;
-     Size size = MediaQuery
-        .of(context)
-        .size;
+    Size size = MediaQuery.of(context).size;
     return Container(
       child: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(height: size.height * 0.1,),
-            Image.asset('assets/images/logo192.png',
+            SizedBox(
+              height: size.height * 0.1,
+            ),
+            Image.asset(
+              'assets/images/logo192.png',
               height: size.height * 0.40,
             ),
-            SizedBox(height: size.height * 0.02,),
-            const Text('NowAcquire',
+            SizedBox(
+              height: size.height * 0.02,
+            ),
+            const Text(
+              'NowAcquire',
               style: TextStyle(
                 fontSize: 50.0,
                 fontWeight: FontWeight.bold,
@@ -40,18 +44,21 @@ class _WelcomeBodyState extends State<WelcomeBody> {
                 fontFamily: "Poppins",
               ),
             ),
-            SizedBox(height: size.height * 0.05,),
+            SizedBox(
+              height: size.height * 0.05,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 RectangularButton(
                     text: 'INVESTOR LOGIN',
                     press: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder:
-                              (context) => LoginScreen(/*investor: InvDetails,*/)));
-                    }
-                ),
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  LoginScreen(/*investor: InvDetails,*/)));
+                    }),
                 // RectangularButton(
                 //   text: '  INVESTOR REGISTER',
                 //   press: () {
@@ -59,33 +66,41 @@ class _WelcomeBodyState extends State<WelcomeBody> {
                 //         MaterialPageRoute(builder:
                 //             (context) => SignUpScreen(/*investor: InvDetails,*/)));
                 //   },
-                 //),
+                //),
               ],
             ),
-
-            SizedBox(height: size.height * 0.02,),
-            Text('New to nowAcquire?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, fontStyle: FontStyle.italic),),
+            SizedBox(
+              height: size.height * 0.02,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 RectangularButton(
                     text: 'INVESTOR REGISTER',
                     press: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder:
-                              (context) => SignUpScreen(/*investor: InvDetails,*/)));
-                    }
-                ),
-            //     RectangularButton(
-            //       text: 'STARTUP \nREGISTER',
-            //       press: () {
-            //         Navigator.push(context,
-            //             MaterialPageRoute(builder:
-            //                 (context) => StartupRegisterScreen(/*investor: InvDetails,*/)));
-            //       },
-            //     ),
-               ],
-             ),
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  SignUpScreen(/*investor: InvDetails,*/)));
+                    }),
+                //     RectangularButton(
+                //       text: 'STARTUP \nREGISTER',
+                //       press: () {
+                //         Navigator.push(context,
+                //             MaterialPageRoute(builder:
+                //                 (context) => StartupRegisterScreen(/*investor: InvDetails,*/)));
+                //       },
+                //     ),
+              ],
+            ),
+            Text(
+              'New to nowAcquire?',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  fontStyle: FontStyle.italic),
+            ),
           ],
         ),
       ),

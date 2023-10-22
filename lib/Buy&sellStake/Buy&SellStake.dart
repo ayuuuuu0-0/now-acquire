@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:now_acquire_app/Buy&sellStake/BuySellStakeBody.dart';
 
 class BuySellStake extends StatelessWidget {
   const BuySellStake({super.key});
@@ -9,12 +8,13 @@ class BuySellStake extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xFFF7F5FF),
-    title: Image.asset('assets/images/namenlogo.png', width: 200,),
-    titleSpacing: 5,
-    automaticallyImplyLeading: false,
+        title: Image.asset(
+          'assets/images/namenlogo.png',
+          width: 200,
+        ),
+        titleSpacing: 5,
+        automaticallyImplyLeading: false,
       ),
     );
   }
 }
-
-
